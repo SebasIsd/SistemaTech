@@ -1,3 +1,4 @@
+// src/App.jsx (o Root.jsx)
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import MainLayout from './components/MainLayout';

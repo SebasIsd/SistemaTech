@@ -1,7 +1,8 @@
+// src/pages/Login.jsx (actualizado para SQLite)
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { FaUser, FaLock, FaSignInAlt, FaExclamationTriangle } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom'; // Asegúrate de tener react-router-dom instalado
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const [email, setEmail] = useState(''); // Cambié de username a email
@@ -10,7 +11,7 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   
   const { login } = useAuth();
-  const navigate = useNavigate(); // Para redirigir después del login
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,9 +26,7 @@ const Login = () => {
     }
 
     try {
-      // Intenta iniciar sesión con Supabase
       await login(email, password);
-      // Si el login es exitoso, redirige
       navigate('/dashboard'); // Cambia por la ruta que quieras
     } catch (err) {
       setError(err.message || 'Error al iniciar sesión');
@@ -121,7 +120,10 @@ const Login = () => {
         </form>
 
         <div className="mt-8 text-center text-sm text-gray-600">
-          <p>Regístrate o inicia sesión con un email y contraseña válidos</p>
+          <p>Credenciales de prueba:</p>
+          <div className="mt-2 space-y-1">
+            <p><span className="font-semibold">Admin:</span> admin@factura.com / 12345678</p>
+          </div>
         </div>
       </div>
     </div>
