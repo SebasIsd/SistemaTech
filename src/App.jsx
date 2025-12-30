@@ -1,43 +1,74 @@
-// src/App.jsx (o Root.jsx)
-import { AuthProvider, useAuth } from './context/AuthContext';
-import Login from './pages/Login';
-import MainLayout from './components/MainLayout';
-
-const Root = () => {
-  const { user } = useAuth();
-
-  // Caso A: No hay usuario -> Pantalla de Login limpia
-  if (!user) {
-    return <Login />;
-  }
-
-  // Caso B: Hay usuario -> Estructura completa del sistema
-  return (
-    <MainLayout>
-      {/* Aquí es donde luego usaremos React Router para cambiar entre páginas */}
-      <div className="bg-white p-6 rounded-lg shadow">
-        <h1 className="text-2xl font-bold">Bienvenido, {user.nombre}</h1>
-        <p className="mt-2 text-gray-600">
-          Has ingresado como <span className="font-bold text-blue-600">{user.rol}</span>.
-        </p>
-        
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="p-4 bg-blue-50 border-l-4 border-blue-500">
-            <h3 className="font-bold">Acceso Rápido</h3>
-            <p className="text-sm">Hoy has realizado 0 ventas.</p>
-          </div>
-        </div>
-      </div>
-    </MainLayout>
-  );
-};
+// src/App.jsx
+import { Routes, Route, Navigate } from 'react-router-dom'
+import { useAuth } from './context/AuthContext'
+import MainLayout from './components/MainLayout'
+import Login from './pages/Login'
+import Register from './pages/Register'
+import AdminUsers from './pages/AdminUsers'        // o AdminUsersFull
+import Dashboard from './pages/Dashboard'           // el dashboard chévere que te di
+import Productos from './pages/Productos'           // Página de productos e inventario
+import LotesProducto from './pages/LotesProducto'
+import NuevaFactura from './pages/NuevaFactura'     // Página para crear nuevas facturas
+import Clientes from './pages/Clientes'
+import DetalleFactura from './pages/DetalleFactura' // Página de detalles de factura
+import Facturas from './pages/Facturas'             // Página de lista de facturas
 
 function App() {
   return (
-    <AuthProvider>
-      <Root />
-    </AuthProvider>
-  );
+    <AppContent />
+  )
 }
 
-export default App;
+function AppContent() {
+  const { user, loading } = useAuth()
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
+
+  // No autenticado → solo login y register
+  if (!user) {
+    return (
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    )
+  }
+
+  // Autenticado → layout + rutas protegidas
+  return (
+    <MainLayout>
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/facturas/nueva" element={<NuevaFactura />} />  // Asume que la creasdo
+        <Route path="/facturas/:id" element={<DetalleFactura />} />
+        <Route path="/facturas" element={<Facturas />} />
+
+        
+        {user.rol === 'admin' && (
+          <Route path="/admin/usuarios" element={<AdminUsers />} />
+        )}
+        {user.rol === 'admin' && (
+          <Route path="/clientes" element={<Clientes />} />
+        )}
+        {user.rol === 'admin' && (
+          <Route path="/productos" element={<Productos />} />
+        )}
+        {user.rol === 'admin' && (
+          <Route path="/productos/:id/lotes" element={<LotesProducto />} />
+        )}
+
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </MainLayout>
+  )
+}
+
+export default App

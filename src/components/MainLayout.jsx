@@ -1,19 +1,27 @@
+// src/components/MainLayout.jsx
 import Sidebar from './Sidebar';
 
 const MainLayout = ({ children }) => {
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      {/* 1. La barra lateral queda fija a la izquierda */}
-      <Sidebar />
+    <div className="flex h-screen w-screen overflow-hidden bg-gray-100">
+      {/* Sidebar fijo a la izquierda - ocupa toda la altura */}
+      <div className="flex-shrink-0">
+        <Sidebar />
+      </div>
 
-      {/* 2. El área de contenido crece para ocupar el resto del espacio */}
-      <div className="flex-1 flex flex-col">
-        {/* Aquí podrías poner un Header superior si quisieras */}
-        <header className="bg-white shadow-sm p-4 text-right font-medium">
-          Sistema de Facturación v1.0
+      {/* Contenido principal - ocupa el resto del espacio y puede hacer scroll */}
+      <div className="flex-1 overflow-auto bg-gray-50">
+        {/* Opcional: header superior si lo quieres */}
+        <header className="bg-white shadow-sm px-6 py-4 sticky top-0 z-10">
+          <div className="flex justify-between items-center">
+            <h1 className="text-xl font-semibold text-gray-800">Sistema de Facturación</h1>
+            <div className="text-sm text-gray-600">
+              {new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+            </div>
+          </div>
         </header>
 
-        {/* 3. El contenido dinámico se inyecta aquí */}
+        {/* Área de contenido real */}
         <main className="p-6">
           {children}
         </main>
@@ -21,5 +29,5 @@ const MainLayout = ({ children }) => {
     </div>
   );
 };
-// esto permite envolver otras páginas con el layout
+
 export default MainLayout;

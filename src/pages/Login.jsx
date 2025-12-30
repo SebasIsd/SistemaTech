@@ -118,13 +118,9 @@ const Login = () => {
             )}
           </button>
         </form>
-
-        <div className="mt-8 text-center text-sm text-gray-600">
-          <p>Credenciales de prueba:</p>
-          <div className="mt-2 space-y-1">
-            <p><span className="font-semibold">Admin:</span> admin@factura.com / 12345678</p>
-          </div>
-        </div>
+        <a href="/register" className="mt-4 block text-center text-blue-600 hover:text-blue-800 font-medium">
+          ¿No tienes una cuenta? Regístrate
+        </a>
       </div>
     </div>
   );

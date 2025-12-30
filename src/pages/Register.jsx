@@ -1,4 +1,4 @@
-// src/pages/Register.jsx (actualizado para SQLite)
+// src/pages/Register.jsx
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { FaUser, FaLock, FaEnvelope, FaCheckCircle, FaExclamationTriangle } from 'react-icons/fa';
@@ -14,15 +14,15 @@ const Register = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const { register } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       [e.target.name]: e.target.value
-    });
+    }));
     if (error) setError('');
   };
 
@@ -32,9 +32,9 @@ const Register = () => {
     setError('');
     setSuccess(false);
 
-    // Validaciones
-    if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
-      setError('Por favor completa todos los campos');
+    // Validaciones básicas
+    if (!formData.name.trim() || !formData.email.trim() || !formData.password) {
+      setError('Todos los campos son obligatorios');
       setIsLoading(false);
       return;
     }
@@ -52,15 +52,11 @@ const Register = () => {
     }
 
     try {
-      await register(formData.name, formData.email, formData.password);
+      await register(formData.name.trim(), formData.email.trim(), formData.password);
       setSuccess(true);
-      
-      setTimeout(() => {
-        navigate('/login');
-      }, 3000);
-
+      setTimeout(() => navigate('/login'), 2800);
     } catch (err) {
-      setError(err.message || 'Error al registrar usuario');
+      setError(err.message || 'Error al registrar. Intenta con otro email.');
     } finally {
       setIsLoading(false);
     }
@@ -68,20 +64,15 @@ const Register = () => {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100 p-4">
-        <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
-          <div className="text-center mb-8">
-            <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <FaCheckCircle className="text-green-600 text-3xl" />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-800">¡Registro Exitoso!</h2>
-            <p className="text-gray-600 mt-2">
-              Tu cuenta ha sido creada. Espera a que un administrador la active.
-            </p>
-            <p className="text-sm text-gray-500 mt-4">
-              Serás redirigido al login en unos segundos...
-            </p>
-          </div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100">
+        <div className="bg-white p-10 rounded-2xl shadow-2xl max-w-md w-full text-center">
+          <FaCheckCircle className="text-green-500 text-6xl mx-auto mb-6" />
+          <h2 className="text-3xl font-bold text-gray-800 mb-3">¡Registro Exitoso!</h2>
+          <p className="text-gray-600 mb-6">
+            Tu cuenta ha sido creada correctamente.<br />
+            Un administrador debe activarla antes de poder ingresar.
+          </p>
+          <p className="text-sm text-gray-500">Redirigiendo al login en unos segundos...</p>
         </div>
       </div>
     );
@@ -91,130 +82,116 @@ const Register = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
       <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-            <FaUser className="text-blue-600 text-2xl" />
+          <div className="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-md">
+            <FaUser className="text-blue-600 text-4xl" />
           </div>
-          <h2 className="text-3xl font-bold text-gray-800">Crear Cuenta</h2>
-          <p className="text-gray-600 mt-2">Completa tus datos para registrarte</p>
+          <h2 className="text-3xl font-bold text-gray-800">Crear Nueva Cuenta</h2>
+          <p className="text-gray-600 mt-2">Regístrate para comenzar a facturar</p>
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 flex items-center gap-2">
-            <FaExclamationTriangle />
+          <div className="bg-red-50 border border-red-200 text-red-700 px-5 py-4 rounded-xl mb-6 flex items-center gap-3">
+            <FaExclamationTriangle className="text-xl" />
             <span>{error}</span>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <label className="block text-gray-700 text-sm font-semibold mb-1 flex items-center gap-2">
-              <FaUser className="text-gray-500" /> Nombre Completo
-            </label>
+          {/* Nombre */}
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">Nombre completo</label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FaUser className="text-gray-400" />
-              </div>
-              <input 
-                type="text" 
+              <FaUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
                 name="name"
-                className="w-full pl-10 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                className="w-full pl-10 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 value={formData.name}
                 onChange={handleChange}
-                placeholder="Ingresa tu nombre completo"
+                placeholder="Ej: Juan Pérez"
               />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="block text-gray-700 text-sm font-semibold mb-1 flex items-center gap-2">
-              <FaEnvelope className="text-gray-500" /> Email
-            </label>
+          {/* Email */}
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">Correo electrónico</label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FaEnvelope className="text-gray-400" />
-              </div>
-              <input 
-                type="email" 
+              <FaEnvelope className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="email"
                 name="email"
-                className="w-full pl-10 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                className="w-full pl-10 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="Ingresa tu email"
-              />
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            <label className="block text-gray-700 text-sm font-semibold mb-1 flex items-center gap-2">
-              <FaLock className="text-gray-500" /> Contraseña
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FaLock className="text-gray-400" />
-              </div>
-              <input 
-                type="password" 
-                name="password"
-                className="w-full pl-10 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Ingresa tu contraseña"
+                placeholder="ejemplo@empresa.com"
               />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="block text-gray-700 text-sm font-semibold mb-1 flex items-center gap-2">
-              <FaLock className="text-gray-500" /> Confirmar Contraseña
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FaLock className="text-gray-400" />
+          {/* Contraseñas */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">Contraseña</label>
+              <div className="relative">
+                <FaLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="password"
+                  name="password"
+                  className="w-full pl-10 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                />
               </div>
-              <input 
-                type="password" 
-                name="confirmPassword"
-                className="w-full pl-10 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                placeholder="Confirma tu contraseña"
-              />
+            </div>
+
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">Confirmar</label>
+              <div className="relative">
+                <FaLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  className="w-full pl-10 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                />
+              </div>
             </div>
           </div>
-          
-          <button 
+
+          <button
             type="submit"
             disabled={isLoading}
-            className={`w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold py-3 px-4 rounded-lg hover:from-green-700 hover:to-emerald-700 transition duration-200 shadow-md ${
-              isLoading ? 'opacity-75 cursor-not-allowed' : ''
+            className={`w-full py-3 px-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-lg shadow-md hover:from-green-700 hover:to-emerald-700 transition flex items-center justify-center gap-2 ${
+              isLoading ? 'opacity-70 cursor-not-allowed' : ''
             }`}
           >
             {isLoading ? (
               <>
-                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
-                Procesando...
+                <span>Creando cuenta...</span>
               </>
             ) : (
-              <>
-                <FaUser /> Registrarse
-              </>
+              <>Registrarse</>
             )}
           </button>
         </form>
 
-        <div className="mt-6 text-center text-sm text-gray-600">
-          <p>¿Ya tienes cuenta?{' '}
-            <button
-              onClick={() => navigate('/login')}
-              className="text-blue-600 hover:underline font-semibold"
-            >
-              Inicia sesión aquí
-            </button>
-          </p>
-        </div>
+        <p className="mt-8 text-center text-gray-600 text-sm">
+          ¿Ya tienes cuenta?{' '}
+          <button
+            onClick={() => navigate('/login')}
+            className="text-blue-600 hover:underline font-medium"
+          >
+            Inicia sesión aquí
+          </button>
+        </p>
       </div>
     </div>
   );
